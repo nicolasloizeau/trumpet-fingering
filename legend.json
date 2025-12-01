@@ -1,0 +1,112 @@
+{
+    "0": {
+        "keywords": [
+            "quantum",
+            "indefinite causal order",
+            "causal",
+            "causal order",
+            "quantum channels"
+        ],
+        "color": "#1f77b4"
+    },
+    "1": {
+        "keywords": [
+            "quantum",
+            "quantum channel",
+            "entanglement",
+            "quantum communication",
+            "quantum error"
+        ],
+        "color": "#ff7f0e"
+    },
+    "2": {
+        "keywords": [
+            "quantum",
+            "quantum steering",
+            "podolsky rosen steering",
+            "steering",
+            "quantum mechanics"
+        ],
+        "color": "#2ca02c"
+    },
+    "3": {
+        "keywords": [
+            "quantum",
+            "entanglement",
+            "quantum discord",
+            "quantum correlations",
+            "quantum heat engine"
+        ],
+        "color": "#d62728"
+    },
+    "4": {
+        "keywords": [
+            "quantum zeno",
+            "quantum",
+            "dynamical decoupling",
+            "entanglement",
+            "quantum zeno anti"
+        ],
+        "color": "#9467bd"
+    },
+    "5": {
+        "keywords": [
+            "quantum",
+            "non markovianity",
+            "markovianity",
+            "non markovian",
+            "non markovian quantum"
+        ],
+        "color": "#8c564b"
+    },
+    "6": {
+        "keywords": [
+            "quantum metrology",
+            "quantum fisher information",
+            "quantum fisher",
+            "quantum",
+            "qubit phase estimation"
+        ],
+        "color": "#e377c2"
+    },
+    "7": {
+        "keywords": [
+            "body localization",
+            "localization",
+            "quantum",
+            "entanglement",
+            "body localized systems"
+        ],
+        "color": "#7f7f7f"
+    },
+    "8": {
+        "keywords": [
+            "quantum",
+            "indefinite causal order",
+            "nonclassical states",
+            "kirkwood dirac nonclassicality",
+            "coherent states"
+        ],
+        "color": "#bcbd22"
+    },
+    "9": {
+        "keywords": [
+            "lennard jones clusters",
+            "optimization",
+            "jones clusters",
+            "global optimization",
+            "simulated annealing"
+        ],
+        "color": "#17becf"
+    },
+    "10": {
+        "keywords": [
+            "quantum fingerprinting",
+            "quantum communication complexity",
+            "fingerprinting",
+            "communication complexity",
+            "quantum communication"
+        ],
+        "color": "#1f77b4"
+    }
+}
