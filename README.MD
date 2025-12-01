@@ -3,7 +3,6 @@
 
 
 # [Trumpet fingering tool app](https://nicolasloizeau.github.io/JuliaContributorsGraph/)
-# Trumpet fingering tool app
 
 A web app to help learn trumpet fingerings.
 
