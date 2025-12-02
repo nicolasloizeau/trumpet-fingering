@@ -2664,7 +2664,7 @@ function draw_patterns(score, canvas_id) {
     if (ix in score) {
       const note = sharp_simplify(score[ix]);
       const pattern = fingerings[note];
-      draw_pattern(pattern, ix, canvas);
+      if (pattern !== undefined) draw_pattern(pattern, ix, canvas);
     }
   }
 }
@@ -2686,7 +2686,9 @@ function transpose_score(score, interval) {
 }
 
 function draw_transpose(score) {
-  for (let i = 0; i < 12; i++) {
+  draw_score(score, "score_0");
+  draw_patterns(score, "patterns_0");
+  for (let i = 1; i < 12; i++) {
     let interval = simplify(fromSemitones(i * 7));
     let shifted_score = transpose_score(score, interval);
     shifted_score = best_octave(shifted_score);

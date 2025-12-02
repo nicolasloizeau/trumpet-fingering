@@ -14,3 +14,6 @@ Build and run the JS app locally:
 npx webpack
 npx serve
 ```
+
+
+![screenshot](screenshot.png)

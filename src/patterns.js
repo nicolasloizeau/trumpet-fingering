@@ -40,7 +40,7 @@ export function draw_patterns(score, canvas_id) {
     if (ix in score) {
       const note = sharp_simplify(score[ix]);
       const pattern = fingerings[note];
-      draw_pattern(pattern, ix, canvas);
+      if (pattern !== undefined) draw_pattern(pattern, ix, canvas);
     }
   }
 }
