@@ -2,7 +2,7 @@
 
 
 
-# [Trumpet fingering tool app](https://nicolasloizeau.github.io/trumpet-fingering/)
+# [Trumpet fingering app](https://nicolasloizeau.github.io/trumpet-fingering/)
 
 A web app to help learn trumpet fingerings.
 
