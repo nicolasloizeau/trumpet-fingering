@@ -3,16 +3,15 @@
     <head>
         <meta charset="utf-8" />
         <script src="dist/bundle.js" defer></script>
+        <link rel="stylesheet" href="css/styles.css" />
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.3/gh-fork-ribbon.min.css"
+        />
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     </head>
     <body>
         <header>
-            <a
-                id="edit-on-github"
-                href="https://github.com/nicolasloizeau/trumpet-fingering"
-                target="_blank"
-                rel="noopener noreferrer"
-                >Edit on GitHub</a
-            >
             <h1>Trumpet fingering tool</h1>
             <p>
                 Edit the score: click to add notes, use ↑ and ↓ keys to add
@@ -20,6 +19,15 @@
             </p>
             <p>The first score is transposed by 5ths in all 12 keys.</p>
             <button id="toggle-scores">Hide scores</button>
+            <button id="export-pdf">Export PDF</button>
+            <div id="scales-container" class="scales-container"></div>
         </header>
+        <a
+            class="github-fork-ribbon right-top"
+            href="https://github.com/nicolasloizeau/trumpet-fingering"
+            data-ribbon="Fork me on GitHub"
+            title="Fork me on GitHub"
+            >Fork me on GitHub</a
+        >
     </body>
 </html>

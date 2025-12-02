@@ -2504,21 +2504,39 @@ function note_to_iy(note) {
   return info.oct * 7 + info.step + staff_offset;
 }
 
+function needs_natural(previous_note, current_note) {
+  const info1 = note_dist_get(previous_note);
+  const info2 = note_dist_get(current_note);
+  const same_oct = info1.oct == info2.oct;
+  const same_step = info1.step == info2.step;
+  return same_step && same_oct && info1.acc != "" && info2.acc == "";
+}
+
 function draw_score(score, canvas_id) {
   draw_grid(canvas_id);
   const canvas = get_canvas(canvas_id);
   for (const ix in score) {
     const note = score[ix];
     const iy = note_to_iy(note);
-    const acc = note_dist_get(note).acc;
+    let acc = note_dist_get(note).acc;
+    // add natural sign if previous note had an accidental
+    const previous_note = score[ix - 1];
+    if (needs_natural(previous_note, note)) {
+      acc = "n";
+    }
     draw_note(ix, iy, acc, canvas);
   }
+  const ctx = canvas.getContext("2d");
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.font = `${dy * 4}px Arial`;
+  ctx.fillText("𝄞", dx / 2, get_y_note(lower_lines * 2 + 4) + 11);
 }
 
 function draw_note(ix, iy, acc, canvas) {
   const ctx = canvas.getContext("2d");
   var x = ix * dx + dx / 2;
-  var y = get_y_note(iy);
+  var y = get_y_note(iy) + 1;
   const radius = dy / 2;
   ctx.beginPath();
   ctx.arc(x, y, radius, 0, Math.PI * 2);
@@ -2536,6 +2554,11 @@ function draw_note(ix, iy, acc, canvas) {
     const accY = y + radius * 0.3;
     ctx.font = `${radius * 3}px Arial`;
     ctx.fillText("♯", accX, accY);
+  } else if (acc == "n") {
+    const accX = x - radius * 1.5;
+    const accY = y - radius * 0.3;
+    ctx.font = `${radius * 3}px Arial`;
+    ctx.fillText("♮", accX, accY);
   }
 }
 
@@ -2564,7 +2587,7 @@ function draw_grid(canvas_id) {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   // draw vertical lines
   for (let i = 0; i < canvas.width / dx; i++) {
-    draw_line(i * dx, 0, i * dx, canvas.height, "#bbb", 1, ctx);
+    draw_line(i * dx - 1, 0, i * dx - 1, canvas.height, "#E1E1E1", 1, ctx);
   }
 
   // draw horizontal lines
@@ -2574,15 +2597,17 @@ function draw_grid(canvas_id) {
     ...Array(upper_lines).fill(0),
   ];
   for (let i = 0; i < line_types.length; i++) {
-    const y = get_y_line(i);
+    const y = get_y_line(i) + 0.5;
     const x1 = 0;
     const x2 = canvas.width;
     if (line_types[i] == 0) {
-      var color = "#ccc";
+      var color = "#E1E1E1";
+      var w = 1;
     } else {
       var color = "#000";
+      var w = 2;
     }
-    draw_line(x1, y, x2, y, color, 1, ctx);
+    draw_line(x1, y, x2, y, color, w, ctx);
   }
 }
 
@@ -2828,13 +2853,171 @@ function delete_note() {
   }
 }
 
+;// ./src/export.js
+// this file is all vide coded. to improve
+
+async function exportAllCanvasesToPDF(
+  filename = "canvases.pdf",
+  opts = {},
+) {
+  const { jsPDF } = window.jspdf;
+  const allCanvases = Array.from(document.querySelectorAll("canvas"));
+  const groupSize = Number(opts.groupSize) || 12;
+  const mime = opts.mime || "image/png";
+  const quality = typeof opts.quality === "number" ? opts.quality : 1.0;
+  const margin = typeof opts.margin === "number" ? opts.margin : 20;
+  const spacing = typeof opts.spacing === "number" ? opts.spacing : 8;
+
+  // detect toggle state: extras hidden => export only visible canvases on a single page
+  const extrasHidden = checkExtrasHidden();
+
+  const pdf = new jsPDF({ unit: "pt", format: "a4", compress: true });
+  const pageWidth = pdf.internal.pageSize.getWidth();
+  const pageHeight = pdf.internal.pageSize.getHeight();
+  const maxRenderWidth = pageWidth - margin * 2;
+  const availableHeight = pageHeight - margin * 2;
+
+  // Helper: convert canvases to image items with target render sizes
+  function makeItemsFromCanvases(canvases) {
+    return canvases.map((c) => {
+      const dataUrl = c.toDataURL(mime, quality);
+      const imgW = c.width || 1;
+      const imgH = c.height || 1;
+      const renderW = maxRenderWidth;
+      const renderH = (imgH / imgW) * renderW;
+      return { dataUrl, renderW, renderH };
+    });
+  }
+
+  // Helper: draw a list of items stacked vertically on the current pdf page (scaled to fit)
+  function renderItemsOnCurrentPage(items) {
+    const totalRenderHeight =
+      items.reduce((sum, it) => sum + it.renderH, 0) +
+      spacing * Math.max(0, items.length - 1);
+    const globalScale =
+      totalRenderHeight > availableHeight
+        ? availableHeight / totalRenderHeight
+        : 1;
+
+    let y = margin;
+    items.forEach((it) => {
+      const finalW = it.renderW * globalScale;
+      const finalH = it.renderH * globalScale;
+      const x = (pageWidth - finalW) / 2;
+      pdf.addImage(
+        it.dataUrl,
+        mime === "image/png" ? "PNG" : "JPEG",
+        x,
+        y,
+        finalW,
+        finalH,
+      );
+      y += finalH + spacing;
+    });
+  }
+
+  if (extrasHidden) {
+    const visibleCanvases = allCanvases.filter((c) => {
+      const s = getComputedStyle(c);
+      return (
+        s.display !== "none" &&
+        s.visibility !== "hidden" &&
+        c.width > 0 &&
+        c.height > 0
+      );
+    });
+    if (visibleCanvases.length === 0) {
+      alert("No visible canvases found to export.");
+      return;
+    }
+    const items = makeItemsFromCanvases(visibleCanvases);
+    renderItemsOnCurrentPage(items);
+    pdf.save(filename);
+    return;
+  }
+
+  // grouped behavior (default): split into pages of groupSize
+  for (let start = 0; start < allCanvases.length; start += groupSize) {
+    const group = allCanvases.slice(start, start + groupSize);
+    const items = makeItemsFromCanvases(group);
+    if (start !== 0) pdf.addPage();
+    renderItemsOnCurrentPage(items);
+  }
+
+  pdf.save(filename);
+}
+
+// small utility to detect whether extra score canvases are hidden
+function checkExtrasHidden() {
+  const scoreCanvases = Array.from(
+    document.querySelectorAll('canvas[id^="score"]'),
+  );
+  if (scoreCanvases.length <= 1) return false;
+  return scoreCanvases.slice(1).some((c) => {
+    const s = getComputedStyle(c);
+    return (
+      s.display === "none" ||
+      s.visibility === "hidden" ||
+      c.offsetParent === null
+    );
+  });
+}
+
+;// ./src/scales.js
+
+
+const scales = {
+  major: ["C4", "D4", "E4", "F4", "G4", "A4", "B4", "C5"],
+  minor: ["C4", "D4", "Eb4", "F4", "G4", "Ab4", "Bb4", "C5"],
+  whole: ["C4", "D4", "E4", "F#4", "G#4", "A#4", "C5"],
+  pentatonic: ["C4", "D4", "E4", "G4", "A4", "C5"],
+  diminished: ["C4", "D4", "Eb4", "F4", "F#4", "G#4", "A4", "B4", "C5"],
+  blues: ["C4", "Eb4", "F4", "Gb4", "G4", "Bb4", "C5"],
+};
+
+function createScaleButtons(container = document.body) {
+  if (!container) return;
+  const frag = document.createDocumentFragment();
+
+  Object.keys(scales).forEach((name) => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "btn scale-btn";
+    btn.dataset.scale = name;
+    btn.textContent = name.charAt(0).toUpperCase() + name.slice(1);
+    frag.appendChild(btn);
+  });
+
+  container.appendChild(frag);
+}
+
+function mirror(arr) {
+  if (!Array.isArray(arr) || arr.length <= 1)
+    return Array.isArray(arr) ? arr.slice() : [];
+  const tailReversed = arr.slice(0, -1).reverse();
+  return arr.concat(tailReversed);
+}
+
+function update_score(score) {
+  score = mirror(score);
+  window.score = {};
+  for (let i = 0; i < score.length; i++) {
+    let note = score[i];
+    window.score[i + 3] = note;
+  }
+}
+
+function update_scale(scale_name) {
+  update_score(scales[scale_name]);
+  update();
+}
+
 ;// ./src/index.js
 function make_canvas(id, height, container = document.body) {
   const c = document.createElement("canvas");
   c.id = id;
-  c.width = 1000;
+  c.width = window.innerWidth * 0.8;
   c.height = height;
-  if (id.startsWith("score")) c.classList.add("score-canvas");
   container.appendChild(c);
 }
 
@@ -2847,6 +3030,11 @@ for (let i = 0; i < 12; i++) {
 
 
 
+
+
+
+console.log(pitchClass("C#4"));
+console.log(pitchClass("C4"));
 function init() {
   draw_score(window.score, "score_0");
   let canvas = document.getElementById("score_0");
@@ -2900,24 +3088,52 @@ function onKeyDown(e) {
   }
 }
 
-// Attach once, e.g. on app start:
 window.addEventListener("keydown", onKeyDown);
 
 const toggleBtn = document.getElementById("toggle-scores");
 if (toggleBtn) {
   toggleBtn.addEventListener("click", () => {
-    const canvases = document.querySelectorAll('canvas[id^="score"]');
+    const canvases = Array.from(
+      document.querySelectorAll('canvas[id^="score"]'),
+    ).filter((c) => c.id !== "score_0");
+
     if (canvases.length === 0) return;
     const firstHidden = getComputedStyle(canvases[0]).display === "none";
     canvases.forEach((c) => {
       c.style.display = firstHidden ? "" : "none";
     });
     toggleBtn.textContent = firstHidden ? "Hide scores" : "Show scores";
-
-    // optional: when showing canvases, you may want to redraw them
-    // canvases.forEach(c => { if (getComputedStyle(c).display !== 'none') draw_score(window.score, c.id); });
   });
 }
+
+const exportBtn = document.getElementById("export-pdf");
+if (exportBtn) {
+  exportBtn.addEventListener("click", () => {
+    // you can pass options e.g. exportAllCanvasesToPDF('scores.pdf', { mime: 'image/jpeg', quality: 0.9 });
+    exportAllCanvasesToPDF();
+  });
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  const container = document.getElementById("scales-container");
+  if (container) {
+    createScaleButtons(container);
+
+    // Delegate clicks from the container to .scale-btn elements and call update_scale
+    container.addEventListener("click", (e) => {
+      const btn = e.target.closest(".scale-btn");
+      if (!btn || !container.contains(btn)) return;
+
+      const scale = btn.dataset.scale;
+      if (!scale) return;
+
+      // call the update function exported from scales.js
+      if (typeof update_scale === "function") {
+        update_scale(scale);
+      }
+    });
+  }
+});
 
 /******/ })()
 ;

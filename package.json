@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "github-fork-ribbon-css": "^0.2.3",
     "html-webpack-plugin": "^5.6.3"
   },
   "devDependencies": {
