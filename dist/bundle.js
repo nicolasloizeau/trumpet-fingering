@@ -2714,7 +2714,7 @@ function draw_transpose(score) {
   draw_score(score, "score_0");
   draw_patterns(score, "patterns_0");
   for (let i = 1; i < 12; i++) {
-    let interval = simplify(fromSemitones(i * 7));
+    let interval = simplify(fromSemitones(-i * 7));
     let shifted_score = transpose_score(score, interval);
     shifted_score = best_octave(shifted_score);
     draw_score(shifted_score, "score_" + i);
