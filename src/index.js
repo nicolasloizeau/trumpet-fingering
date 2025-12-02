@@ -16,10 +16,8 @@ import { height, patterns_height } from "./settings.js";
 import { click, sharpen, flatten, delete_note } from "./editor.js";
 import { exportAllCanvasesToPDF } from "./export.js";
 import { createScaleButtons, update_scale } from "./scales.js";
-import { Note } from "tonal";
+import { play_score } from "./play.js";
 
-console.log(Note.pitchClass("C#4"));
-console.log(Note.pitchClass("C4"));
 function init() {
   draw_score(window.score, "score_0");
   let canvas = document.getElementById("score_0");
@@ -118,4 +116,25 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   }
+});
+
+// const button = document.getElementById("play");
+// button.addEventListener("click", () => {
+//   play_score(0.5);
+// });
+
+document.addEventListener("DOMContentLoaded", () => {
+  const patternCanvases = document.querySelectorAll('canvas[id^="patterns_"]');
+  patternCanvases.forEach((c) => {
+    const m = c.id.match(/patterns_(\d+)$/);
+    if (!m) return;
+    const idx = Number(m[1]);
+    c.addEventListener("click", () => {
+      if (typeof play_score === "function") {
+        play_score(idx);
+      } else {
+        console.warn("play_score is not available");
+      }
+    });
+  });
 });

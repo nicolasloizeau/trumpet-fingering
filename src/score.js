@@ -43,6 +43,13 @@ export function draw_score(score, canvas_id) {
   ctx.fillText("𝄞", dx / 2, get_y_note(lower_lines * 2 + 4) + 11);
 }
 
+function draw_dash(ix, iy, canvas) {
+  const ctx = canvas.getContext("2d");
+  const x = ix * dx + dx / 2;
+  const y = get_y_note(iy) + 0.5;
+  draw_line(x - dx * 0.4, y, x + dx * 0.4, y, "#000", 2, ctx);
+}
+
 function draw_note(ix, iy, acc, canvas) {
   const ctx = canvas.getContext("2d");
   var x = ix * dx + dx / 2;

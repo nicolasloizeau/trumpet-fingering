@@ -91,3 +91,15 @@ input[type="button"]:hover,
 input[type="submit"]:hover {
     box-shadow: 0 6px 18px rgba(2, 6, 23, 0.12);
 }
+
+canvas[id^="patterns"] {
+    border-radius: 12px; /* rounded corners */
+}
+
+canvas[id^="patterns"]:hover {
+    /* stronger shadow + slight lift on hover */
+    box-shadow:
+        0 20px 48px rgba(2, 6, 23, 0.2),
+        0 8px 18px rgba(2, 6, 23, 0.1);
+    transform: translateY(-4px);
+}

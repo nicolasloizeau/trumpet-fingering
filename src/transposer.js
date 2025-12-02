@@ -16,12 +16,14 @@ function transpose_score(score, interval) {
 export function draw_transpose(score) {
   draw_score(score, "score_0");
   draw_patterns(score, "patterns_0");
+  window.transposed_scores = [score];
   for (let i = 1; i < 12; i++) {
     let interval = Interval.simplify(Interval.fromSemitones(-i * 7));
     let shifted_score = transpose_score(score, interval);
     shifted_score = best_octave(shifted_score);
     draw_score(shifted_score, "score_" + i);
     draw_patterns(shifted_score, "patterns_" + i);
+    window.transposed_scores.push(shifted_score);
   }
 }
 
