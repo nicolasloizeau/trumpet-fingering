@@ -33918,7 +33918,7 @@ async function play_score(score_i, interval = 0.5) {
   await start();
 
   notes.forEach((midi, i) => {
-    const freq = Frequency(midi, "midi"); // Convert MIDI to frequency
+    const freq = Frequency(midi - 2, "midi"); // Convert MIDI to frequency
     // Schedule the note using Tone.now() + offset
     trumpet.triggerAttackRelease(freq, "4n", now() + i * interval);
   });

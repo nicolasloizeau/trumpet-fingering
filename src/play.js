@@ -29,7 +29,7 @@ export async function play_score(score_i, interval = 0.5) {
   await Tone.start();
 
   notes.forEach((midi, i) => {
-    const freq = Tone.Frequency(midi, "midi"); // Convert MIDI to frequency
+    const freq = Tone.Frequency(midi - 2, "midi"); // Convert MIDI to frequency
     // Schedule the note using Tone.now() + offset
     trumpet.triggerAttackRelease(freq, "4n", Tone.now() + i * interval);
   });
